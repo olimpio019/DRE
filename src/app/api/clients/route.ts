@@ -5,7 +5,7 @@ import { authOptions } from '@/lib/auth'
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions) as { user?: any } | null;
 
     if (!session) {
       return new NextResponse('Não autorizado', { status: 401 })
@@ -34,7 +34,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions) as { user?: any } | null;
 
     if (!session) {
       return new NextResponse('Não autorizado', { status: 401 })
@@ -81,7 +81,7 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions) as { user?: any } | null;
 
     if (!session) {
       return new NextResponse('Não autorizado', { status: 401 })
@@ -121,7 +121,7 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions) as { user?: any } | null;
 
     if (!session) {
       return new NextResponse('Não autorizado', { status: 401 })

@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma";
 
 export async function POST() {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions) as { user?: any } | null;
     if (!session?.user) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
