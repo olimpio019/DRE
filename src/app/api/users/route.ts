@@ -81,9 +81,8 @@ export async function POST(req: Request) {
     return NextResponse.json(userWithoutPassword);
   } catch (error) {
     console.error("Erro ao criar usuário:", error);
-    
-    // Verifica se é um erro do Prisma
-    if (error.code === 'P2002') {
+
+    if (typeof error === 'object' && error !== null && 'code' in error && (error as any).code === 'P2002') {
       return NextResponse.json(
         { error: "Este email já está em uso" },
         { status: 400 }
@@ -131,14 +130,14 @@ export async function PUT(request: Request) {
     })
   } catch (error) {
     console.error("Erro ao criar usuário:", error);
-  
+
     if (typeof error === 'object' && error !== null && 'code' in error && (error as any).code === 'P2002') {
       return NextResponse.json(
         { error: "Este email já está em uso" },
         { status: 400 }
       );
     }
-  
+
     return NextResponse.json(
       { error: "Erro ao criar usuário. Por favor, tente novamente." },
       { status: 500 }
