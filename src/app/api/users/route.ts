@@ -130,8 +130,19 @@ export async function PUT(request: Request) {
       role: user.role,
     })
   } catch (error) {
-    console.error('Erro ao atualizar usuário:', error)
-    return new NextResponse('Erro interno do servidor', { status: 500 })
+    console.error("Erro ao criar usuário:", error);
+  
+    if (typeof error === 'object' && error !== null && 'code' in error && (error as any).code === 'P2002') {
+      return NextResponse.json(
+        { error: "Este email já está em uso" },
+        { status: 400 }
+      );
+    }
+  
+    return NextResponse.json(
+      { error: "Erro ao criar usuário. Por favor, tente novamente." },
+      { status: 500 }
+    );
   }
 }
 
