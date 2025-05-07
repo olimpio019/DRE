@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  password      String
+  role          String    @default("user")
+  license       License?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model License {
+  id          String    @id @default(cuid())
+  key         String    @unique
+  status      String    @default("ACTIVE")
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id])
+}
+
+model Product {
+  id            String      @id @default(cuid())
+  name          String
+  description   String
+  price         Float       // Preço de Venda
+  cost          Float       // Custo Unitário
+  stock         Int         // Quantidade em Estoque
+  minStock      Int         // Quantidade Mínima
+  saleItems     SaleItem[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  phone     String?
+  address   String?
+  sales     Sale[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Department {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  expenses    Expense[]
+  sales       Sale[]
+}
+
+model Expense {
+  id          String    @id @default(cuid())
+  description String
+  amount      Float
+  type        String    // Operational, Administrative, Financial, Other
+  date        DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  department  Department? @relation(fields: [departmentId], references: [id])
+  departmentId String?
+}
+
+model Sale {
+  id          String    @id @default(cuid())
+  total       Float
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  client      Client    @relation(fields: [clientId], references: [id])
+  clientId    String
+  items       SaleItem[]
+  department  Department? @relation(fields: [departmentId], references: [id])
+  departmentId String?
+}
+
+model SaleItem {
+  id        String   @id @default(cuid())
+  saleId    String
+  sale      Sale     @relation(fields: [saleId], references: [id])
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+} 
