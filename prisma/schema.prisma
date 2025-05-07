@@ -86,6 +86,7 @@ model Sale {
   items       SaleItem[]
   department  Department? @relation(fields: [departmentId], references: [id])
   departmentId String?
+  status      String?    // Campo adicionado para controlar o status da venda
 }
 
 model SaleItem {
