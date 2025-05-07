@@ -23,22 +23,19 @@ export async function POST() {
       prisma.department.create({
         data: {
           name: "Vendas",
-          description: "Departamento de vendas",
-          expenses: 5000
+          description: "Departamento de vendas"
         }
       }),
       prisma.department.create({
         data: {
           name: "Marketing",
-          description: "Departamento de marketing",
-          expenses: 3000
+          description: "Departamento de marketing"
         }
       }),
       prisma.department.create({
         data: {
           name: "TI",
-          description: "Departamento de tecnologia",
-          expenses: 4000
+          description: "Departamento de tecnologia"
         }
       })
     ]);
