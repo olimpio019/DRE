@@ -8,7 +8,20 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Removido experimental.serverActions e env
+  // Configurações para evitar cache
+  headers: async () => {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, must-revalidate',
+          },
+        ],
+      },
+    ]
+  },
 };
 
 module.exports = nextConfig;
