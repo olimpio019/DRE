@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const loginSchema = z.object({
   email: z.string().email("Email inválido"),
@@ -17,6 +17,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const [isLoading, setIsLoading] = useState(false);
   const {
     register,
     handleSubmit,
@@ -33,6 +34,7 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
+      setIsLoading(true);
       console.log("Tentando fazer login com:", { email: data.email });
       
       const result = await signIn("credentials", {
@@ -52,43 +54,51 @@ export default function LoginPage() {
       if (result?.ok) {
         console.log("Login bem-sucedido, obtendo licença...");
         
-        // Obter a licença ativa
-        const response = await fetch("/api/licenses/active", {
-          headers: {
-            "Content-Type": "application/json",
-            "x-licenca": localStorage.getItem("licenseKey") || "",
-          },
-        });
+        try {
+          // Obter a licença ativa
+          const response = await fetch("/api/licenses/active", {
+            headers: {
+              "Content-Type": "application/json",
+              "x-licenca": localStorage.getItem("licenseKey") || "",
+            },
+          });
 
-        if (!response.ok) {
-          console.error("Erro ao obter licença:", response.status);
-          throw new Error("Erro ao obter licença");
+          if (!response.ok) {
+            console.error("Erro ao obter licença:", response.status);
+            throw new Error("Erro ao obter licença");
+          }
+
+          const { key } = await response.json();
+          console.log("Licença obtida com sucesso");
+
+          // Armazenar a chave da licença no localStorage
+          localStorage.setItem("licenseKey", key);
+
+          // Configurar o interceptador de requisições
+          const originalFetch = window.fetch;
+          window.fetch = async (input, init) => {
+            const headers = new Headers(init?.headers);
+            headers.set("x-licenca", key);
+            return originalFetch(input, { ...init, headers });
+          };
+
+          console.log("Redirecionando para /admin");
+          window.location.href = "/admin";
+        } catch (error) {
+          console.error("Erro ao processar licença:", error);
+          // Não mostrar erro aqui, pois o login foi bem-sucedido
+          window.location.href = "/admin";
         }
-
-        const { key } = await response.json();
-        console.log("Licença obtida com sucesso");
-
-        // Armazenar a chave da licença no localStorage
-        localStorage.setItem("licenseKey", key);
-
-        // Configurar o interceptador de requisições
-        const originalFetch = window.fetch;
-        window.fetch = async (input, init) => {
-          const headers = new Headers(init?.headers);
-          headers.set("x-licenca", key);
-          return originalFetch(input, { ...init, headers });
-        };
-
-        console.log("Redirecionando para /admin");
-        window.location.href = "/admin";
       }
     } catch (error) {
       console.error("Erro ao fazer login:", error);
       alert("Erro ao fazer login. Por favor, tente novamente.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  if (status === "loading") {
+  if (status === "loading" || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
@@ -151,9 +161,10 @@ export default function LoginPage() {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              disabled={isLoading}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Entrar
+              {isLoading ? "Entrando..." : "Entrar"}
             </button>
           </div>
         </form>
