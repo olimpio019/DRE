@@ -10,7 +10,13 @@ interface AuthContextType {
   logout: () => Promise<void>
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const defaultContext: AuthContextType = {
+  isAuthenticated: false,
+  isLoading: true,
+  logout: async () => {},
+}
+
+const AuthContext = createContext<AuthContextType>(defaultContext)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession()

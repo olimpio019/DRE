@@ -6,6 +6,7 @@ import { z } from "zod";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 
 const loginSchema = z.object({
   email: z.string().email("Email inválido"),
@@ -169,6 +170,7 @@ export default function LoginPage() {
           </div>
         </form>
       </div>
+      <WhatsAppButton phoneNumber="5519993993659" />
     </div>
   );
 } 
