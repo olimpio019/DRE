@@ -97,8 +97,18 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
+    <div
+      className="min-h-screen flex items-center justify-center relative"
+      style={{
+        backgroundImage: "url('/login-bg.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      {/* Overlay para escurecer levemente o fundo */}
+      <div className="absolute inset-0 bg-white bg-opacity-60 backdrop-blur-sm"></div>
+      <div className="max-w-md w-full space-y-8 p-8 bg-white bg-opacity-90 rounded-lg shadow-lg relative z-10">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Faça login na sua conta

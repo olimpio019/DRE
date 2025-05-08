@@ -18,7 +18,7 @@ function Header() {
     <header className="bg-white shadow">
       <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
         <div className="flex items-center space-x-4">
-          <h1 className="text-2xl font-bold text-gray-900">Sistema de Gestão</h1>
+          <img src="/logo.png" alt="FinDRE" className="h-16 w-auto" />
           {!isHomePage && (
             <Link 
               href={homePageUrl}

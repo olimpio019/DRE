@@ -2,18 +2,45 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+
+interface RankingUser {
+  id: string;
+  user: {
+    name: string;
+    email: string;
+  };
+  points: number;
+  position: number;
+}
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [topRankings, setTopRankings] = useState<RankingUser[]>([]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
     }
   }, [status, router]);
+
+  useEffect(() => {
+    async function fetchTopRankings() {
+      try {
+        const response = await fetch("/api/ranking");
+        if (response.ok) {
+          const data = await response.json();
+          setTopRankings(data.slice(0, 3)); // Pega os 3 primeiros do ranking
+        }
+      } catch (error) {
+        console.error("Erro ao buscar ranking:", error);
+      }
+    }
+
+    fetchTopRankings();
+  }, []);
 
   if (status === "loading") {
     return (
@@ -32,6 +59,40 @@ export default function DashboardPage() {
           </h1>
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {/* Card de Ranking */}
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <svg className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div className="ml-5 w-0 flex-1">
+                      <h3 className="text-lg font-medium text-gray-900">Top Vendedores</h3>
+                    </div>
+                  </div>
+                  <Link href="/ranking" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                    Ver todos
+                  </Link>
+                </div>
+                <div className="space-y-3">
+                  {topRankings.map((ranking) => (
+                    <div key={ranking.id} className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <span className="text-sm font-medium text-gray-500 mr-2">{ranking.position}º</span>
+                        <span className="text-sm text-gray-900">{ranking.user.name}</span>
+                      </div>
+                      <span className="text-sm font-medium text-gray-900">
+                        {ranking.points.toLocaleString('pt-BR')} pts
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
             {/* Card de Produtos */}
             <div className="bg-white overflow-hidden shadow rounded-lg">
               <div className="p-5">

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { updateRanking } from "@/lib/ranking";
 
 export async function GET() {
   try {
@@ -106,6 +107,14 @@ export async function POST(request: Request) {
           },
         },
       });
+    }
+
+    // Atualizar ranking do usuário
+    if (session.user?.id) {
+      // Calcula os pontos baseados no valor total da venda
+      // Você pode ajustar a fórmula de pontos conforme necessário
+      const points = Math.floor(total);
+      await updateRanking(session.user.id, points);
     }
 
     return NextResponse.json(sale);
