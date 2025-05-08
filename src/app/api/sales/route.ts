@@ -39,7 +39,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions) as { user?: { id?: string } } | null;
 
     if (!session) {
       return new NextResponse("Não autorizado", { status: 401 });
